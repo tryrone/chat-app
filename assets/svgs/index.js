@@ -1,0 +1,23 @@
+import Big_Add_Btn from "./add_btn.svg";
+import Pause_Btn from "./pause_btn.svg";
+import Play_Icon from "./play_icon.svg";
+import Safe_Icon from "./safe_icon.svg";
+import Small_add from "./small_add.svg";
+import ChatIcon from "./chat_svg.svg";
+import CallIcon from "./call.svg";
+import SearchIcon from "./search.svg";
+import ProfileIcon from "./profile.svg";
+import Black_add_svg from "./black_add.svg";
+
+export {
+  Big_Add_Btn,
+  Pause_Btn,
+  Play_Icon,
+  Safe_Icon,
+  Small_add,
+  CallIcon,
+  ChatIcon,
+  SearchIcon,
+  ProfileIcon,
+  Black_add_svg,
+};
