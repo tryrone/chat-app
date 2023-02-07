@@ -8,6 +8,9 @@ import CallIcon from "./call.svg";
 import SearchIcon from "./search.svg";
 import ProfileIcon from "./profile.svg";
 import Black_add_svg from "./black_add.svg";
+import SeenIcon from "./seen.svg";
+import Dots from "./dots.svg";
+import MicSvg from "./mic.svg";
 
 export {
   Big_Add_Btn,
@@ -20,4 +23,7 @@ export {
   SearchIcon,
   ProfileIcon,
   Black_add_svg,
+  SeenIcon,
+  Dots,
+  MicSvg,
 };

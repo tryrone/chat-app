@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Welcome from "./src/pages/welcome";
 import BottomTabNavigator from "./src/pages/bottomTabNavigator";
+import ChatDetail from "./src/pages/chatDetail";
 
 export default function App(): JSX.Element {
   const Stack = createNativeStackNavigator();
@@ -27,6 +28,7 @@ export default function App(): JSX.Element {
       >
         <Stack.Screen name="Welcome" component={Welcome} />
         <Stack.Screen name="Dashboard" component={BottomTabNavigator} />
+        <Stack.Screen name="ChatDetail" component={ChatDetail} />
       </Stack.Navigator>
     </NavigationContainer>
   );
