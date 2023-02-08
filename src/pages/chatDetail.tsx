@@ -5,9 +5,10 @@ import Colors from "../constants/Colors";
 import styled from "styled-components/native";
 import CustomText from "../components/CustomText";
 import Fonts from "../constants/Fonts";
-import { Dots } from "../../assets/svgs";
+import { BackArrow, Dots } from "../../assets/svgs";
 import Chat from "../components/ChatlistItem/Chat";
 import KeyboardShift from "../components/KeyboardAvoidView";
+import { ScreenDefaultProps } from "../constants/types";
 
 const TextWrap = styled.View`
   padding-horizontal: 20px;
@@ -38,7 +39,17 @@ const ChatContainer = styled.View`
   padding: 20px;
 `;
 
-const ChatDetail = () => {
+const ArrowContainer = styled.TouchableOpacity`
+  height: 35px;
+  width: 35px;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  position: relative;
+  right: 12px;
+`;
+
+const ChatDetail = ({ navigation }: ScreenDefaultProps) => {
   return (
     <KeyboardShift>
       <CardSafeAreaWrap
@@ -50,6 +61,10 @@ const ChatDetail = () => {
           <StatusBar barStyle="light-content" />
           <TextWrap>
             <Row>
+              <ArrowContainer onPress={() => navigation?.goBack()}>
+                <BackArrow />
+              </ArrowContainer>
+
               <ProfileImage
                 source={{
                   uri: "https://images.unsplash.com/photo-1582233479366-6d38bc390a08?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1183&q=80",

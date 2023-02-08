@@ -11,6 +11,7 @@ import Black_add_svg from "./black_add.svg";
 import SeenIcon from "./seen.svg";
 import Dots from "./dots.svg";
 import MicSvg from "./mic.svg";
+import BackArrow from "./back_arrow.svg";
 
 export {
   Big_Add_Btn,
@@ -26,4 +27,5 @@ export {
   SeenIcon,
   Dots,
   MicSvg,
+  BackArrow,
 };
