@@ -1,56 +1,15 @@
-import React from "react";
-import { FlatList } from "react-native";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import styled from "styled-components/native";
 import { MicSvg, Small_add } from "../../../assets/svgs";
 import Colors from "../../constants/Colors";
 import Fonts from "../../constants/Fonts";
+import { socket } from "../../pages/messages";
 import CustomText from "../CustomText";
 
-const bubbleData = [
-  {
-    text: "Hey! How have you been?",
-    iAmSender: false,
-    time: "12:15 PM",
-  },
-  {
-    text: "Wanna catch up for a beer?",
-    iAmSender: false,
-    time: "12:15 PM",
-  },
-  {
-    text: "Awesome! Let’s meet up",
-    iAmSender: true,
-    time: "12:20 PM",
-  },
-  {
-    text: "Can I also get my cousin along? Will that be okay?",
-    iAmSender: true,
-    time: "12:20 PM",
-  },
-  {
-    text: "Yeah sure! get him too.",
-    iAmSender: false,
-    time: "12:22 PM",
-  },
-  {
-    text: "Alright! See you soon!",
-    iAmSender: true,
-    time: "12:25 PM",
-  },
-  {
-    text: "Remember to bring the thing",
-    iAmSender: false,
-    time: "12:26 PM",
-  },
-  {
-    text: "Okay sure!",
-    iAmSender: true,
-    time: "12:28 PM",
-  },
-];
-
 const InputWrap = styled.View`
-  height: 64px;
+  min-height: 64px;
   width: 100%;
   border: 1px solid ${Colors?.input_border};
   border-radius: 164px;
@@ -61,7 +20,7 @@ const InputWrap = styled.View`
 `;
 
 const InputText = styled.TextInput`
-  height: 33px;
+  min-height: 28px;
   border-right-width: 1px;
   border-right-color: ${Colors?.input_border};
   font-family: ${Fonts?.InterRegular}
@@ -87,13 +46,13 @@ const BubbleContainer = styled.Pressable<{
 const BubbleWrap = styled.View<{
   iAmSender: boolean;
 }>`
-  padding-vertical: 10px;
+  padding-vertical: 12px;
   padding-horizontal: 20px;
   border-radius: 100px;
   background-color: ${({ iAmSender }) =>
     iAmSender ? Colors?.orange : Colors?.yellow};
   max-width: 80%;
-  margin-bottom: 6px;
+  margin-bottom: 9px;
 `;
 
 type ChatItemProp = {
@@ -145,77 +104,122 @@ const isNextSenderSame = ({
   return currentMessage.time === (nextMessage?.time || "");
 };
 
-const renderItem = ({ item, index }: ChatItemProp): JSX.Element => {
-  const iAmSender = item?.iAmSender;
-  const previousTimeIsSame = isSenderSame({
-    currentMessage: item,
-    prevMessage: bubbleData[index - 1],
-  });
-
-  const nextTimeIsSame = isNextSenderSame({
-    currentMessage: item,
-    nextMessage: bubbleData[index + 1],
-  });
-
-  return (
-    <BubbleContainer iAmSender={iAmSender}>
-      <BubbleWrap iAmSender={iAmSender}>
-        <CustomText
-          align={iAmSender ? "right" : "left"}
-          fontFamily={Fonts?.InterRegular}
-          fontSize={15}
-          style={{ lineHeight: 20 }}
-          fontWeight="400"
-        >
-          {item?.text}
-        </CustomText>
-      </BubbleWrap>
-
-      {previousTimeIsSame && (
-        <CustomText
-          align={iAmSender ? "right" : "left"}
-          fontFamily={Fonts?.InterRegular}
-          fontSize={12}
-          top={10}
-          bottom={5}
-          color={Colors?.timeColor}
-          fontWeight="400"
-        >
-          {item?.time}
-        </CustomText>
-      )}
-
-      {!previousTimeIsSame && !nextTimeIsSame && (
-        <CustomText
-          align={iAmSender ? "right" : "left"}
-          fontFamily={Fonts?.InterRegular}
-          fontSize={12}
-          top={10}
-          bottom={5}
-          color={Colors?.timeColor}
-          fontWeight="400"
-        >
-          {item?.time}
-        </CustomText>
-      )}
-    </BubbleContainer>
-  );
+type ChatItemData = {
+  text: string;
+  iAmSender: boolean;
+  time: string;
+  date: Date;
 };
 
 const Chat = () => {
+  const [chatText, setChatText] = useState("");
+  const [chatData] = useState<Array<ChatItemData>>([]);
+  const flatlistRef = useRef<any>();
+
+  const updateChat = (message: ChatItemData) => {
+    const textAlreadyExists = chatData.find(
+      (item) => item.text === message.text && item.time === message.time
+    );
+
+    if (textAlreadyExists || message?.text.length === 0) return;
+    setChatText("");
+    chatData.push(message);
+    flatlistRef?.current?.scrollToEnd({ animated: true });
+  };
+
+  useEffect(() => {
+    socket.on("privateMessage", (message) => {
+      updateChat(message);
+    });
+  }, []);
+
+  const onSubmit = () => {
+    const msgData = {
+      text: chatText,
+      iAmSender: true,
+      time: moment(Date.now()).format("hh:mm A"),
+      Date: Date.now(),
+    };
+    socket.emit("chatMessage", msgData);
+  };
+
+  const renderItem = ({ item, index }: ChatItemProp): JSX.Element => {
+    const iAmSender = item?.iAmSender;
+    const previousTimeIsSame = isSenderSame({
+      currentMessage: item,
+      prevMessage: chatData[index - 1],
+    });
+
+    const nextTimeIsSame = isNextSenderSame({
+      currentMessage: item,
+      nextMessage: chatData[index + 1],
+    });
+
+    return (
+      <BubbleContainer iAmSender={iAmSender}>
+        <BubbleWrap iAmSender={iAmSender}>
+          <CustomText
+            align={iAmSender ? "right" : "left"}
+            fontFamily={Fonts?.InterRegular}
+            fontSize={15}
+            lineHeight={20}
+            fontWeight="400"
+          >
+            {item?.text}
+          </CustomText>
+        </BubbleWrap>
+
+        {previousTimeIsSame && !nextTimeIsSame && (
+          <CustomText
+            align={iAmSender ? "right" : "left"}
+            fontFamily={Fonts?.InterRegular}
+            fontSize={12}
+            top={10}
+            bottom={5}
+            color={Colors?.timeColor}
+            fontWeight="400"
+          >
+            {item?.time}
+          </CustomText>
+        )}
+
+        {!previousTimeIsSame && !nextTimeIsSame && (
+          <CustomText
+            align={iAmSender ? "right" : "left"}
+            fontFamily={Fonts?.InterRegular}
+            fontSize={12}
+            top={10}
+            bottom={5}
+            color={Colors?.timeColor}
+            fontWeight="400"
+          >
+            {item?.time}
+          </CustomText>
+        )}
+      </BubbleContainer>
+    );
+  };
   return (
     <ChatContainer>
       <FlatList
+        ref={flatlistRef}
         showsVerticalScrollIndicator={false}
-        data={bubbleData}
+        data={chatData}
         renderItem={renderItem}
         keyExtractor={(item, index) => `${index} + ${Date.now()}`}
       />
 
       <InputWrap>
         <Small_add />
-        <InputText placeholder="Type Message..." />
-        <MicSvg />
+        <InputText
+          value={chatText}
+          onChangeText={(e) => setChatText(e)}
+          multiline
+          placeholder="Type Message..."
+        />
+        <TouchableOpacity onPress={() => onSubmit()}>
+          <MicSvg />
+        </TouchableOpacity>
       </InputWrap>
     </ChatContainer>
   );

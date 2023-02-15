@@ -9,6 +9,7 @@ import styled from "styled-components/native";
 import Stories from "../components/Stories/stories";
 import ChatlistItem from "../components/ChatlistItem";
 import { ScreenDefaultProps } from "../constants/types";
+import { io } from "socket.io-client";
 
 const TextWrap = styled.View`
   padding-horizontal: 20px;
@@ -23,6 +24,8 @@ const ChatlistContainer = styled.View`
   border-top-right-radius: 30px;
   padding: 20px;
 `;
+
+export const socket = io("http://localhost:3000");
 
 const Messages = ({ navigation }: ScreenDefaultProps) => {
   return (
