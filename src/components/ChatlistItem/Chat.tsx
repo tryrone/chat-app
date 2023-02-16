@@ -5,7 +5,7 @@ import styled from "styled-components/native";
 import { MicSvg, Small_add } from "../../../assets/svgs";
 import Colors from "../../constants/Colors";
 import Fonts from "../../constants/Fonts";
-import { socket } from "../../pages/messages";
+import { socket, UserObject } from "../../pages/messages";
 import CustomText from "../CustomText";
 
 const InputWrap = styled.View`
@@ -108,12 +108,16 @@ type ChatItemData = {
   text: string;
   iAmSender: boolean;
   time: string;
-  date: Date;
+  date: Date | number;
 };
 
-const Chat = () => {
+type ChatData = {
+  user: UserObject;
+};
+
+const Chat = ({ user }: ChatData) => {
   const [chatText, setChatText] = useState("");
-  const [chatData] = useState<Array<ChatItemData>>([]);
+  const [chatData, setChatData] = useState<Array<ChatItemData>>([]);
   const flatlistRef = useRef<any>();
 
   const updateChat = (message: ChatItemData) => {
@@ -123,24 +127,37 @@ const Chat = () => {
 
     if (textAlreadyExists || message?.text.length === 0) return;
     setChatText("");
+    setChatData([...chatData, message]);
     chatData.push(message);
-    flatlistRef?.current?.scrollToEnd({ animated: true });
+  };
+
+  const updateChatBubbles = (message: ChatItemData, from: string) => {
+    if (user.userID === from) {
+      setChatData([...chatData, { ...message, iAmSender: false }]);
+      chatData.push({ ...message, iAmSender: false });
+    }
   };
 
   useEffect(() => {
-    socket.on("privateMessage", (message) => {
-      updateChat(message);
+    socket.on("private message", ({ content, from }) => {
+      updateChatBubbles(content, from);
     });
   }, []);
 
   const onSubmit = () => {
     const msgData = {
       text: chatText,
-      iAmSender: true,
       time: moment(Date.now()).format("hh:mm A"),
-      Date: Date.now(),
+      date: Date.now(),
     };
-    socket.emit("chatMessage", msgData);
+
+    if (user) {
+      socket.emit("private message", {
+        content: msgData,
+        to: user?.userID,
+      });
+    }
+    updateChat({ ...msgData, iAmSender: true });
   };
 
   const renderItem = ({ item, index }: ChatItemProp): JSX.Element => {
@@ -205,8 +222,20 @@ const Chat = () => {
         ref={flatlistRef}
         showsVerticalScrollIndicator={false}
         data={chatData}
+        inverted
+        contentContainerStyle={{ flexDirection: "column-reverse" }}
+        onScrollToIndexFailed={(info) => {
+          const wait = new Promise((resolve) => setTimeout(resolve, 500));
+          wait.then(() => {
+            flatlistRef.current?.scrollToIndex({
+              index: 0,
+              animated: true,
+            });
+          });
+        }}
         renderItem={renderItem}
         keyExtractor={(item, index) => `${index} + ${Date.now()}`}
+        extraData={chatData}
       />
 
       <InputWrap>

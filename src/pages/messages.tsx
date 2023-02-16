@@ -1,5 +1,5 @@
-import { ImageBackground, StatusBar } from "react-native";
-import React from "react";
+import { FlatList, ImageBackground, StatusBar } from "react-native";
+import React, { useEffect, useState } from "react";
 import Colors from "../constants/Colors";
 import CardSafeAreaWrap from "../components/SafeAreaWrap/cardSafeArea";
 import { pattern_bg_2 } from "../../assets/images";
@@ -25,9 +25,67 @@ const ChatlistContainer = styled.View`
   padding: 20px;
 `;
 
-export const socket = io("http://localhost:3000");
+export const socket = io("http://localhost:3000", { autoConnect: false });
+
+export type UserObject = {
+  hasNewMessages: boolean;
+  self: boolean;
+  userID: string;
+  username: string;
+};
 
 const Messages = ({ navigation }: ScreenDefaultProps) => {
+  const [loggedInuser, setLoggedInUser] = useState({});
+  const [currentUsers, setCurrentUsers] = useState<UserObject[]>([]);
+
+  const initReactiveProperties = (user) => {
+    user.hasNewMessages = false;
+    setLoggedInUser(user);
+  };
+
+  useEffect(() => {
+    socket.onAny((event, ...args) => {
+      console.log(event, args);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("user connected", (user) => {
+      if (user.userID !== socket.id) setCurrentUsers([...currentUsers, user]);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("users", (users) => {
+      users.forEach((user) => {
+        user.self = user.userID === socket.id;
+        initReactiveProperties(user);
+      });
+      // put the current user first, and then sort by username
+      const newCurrentUsers = users.sort((a, b) => {
+        if (a.self) return -1;
+        if (b.self) return 1;
+        if (a.username < b.username) return -1;
+        return a.username > b.username ? 1 : 0;
+      });
+
+      setCurrentUsers(newCurrentUsers);
+    });
+  }, []);
+
+  type ChatListItemProp = {
+    item: UserObject;
+    index: number;
+  };
+
+  const renderChatListItem = ({ item, index }: ChatListItemProp) => {
+    return <ChatlistItem navigation={navigation} user={item} key={index} />;
+  };
+
+  const filteredUsers = currentUsers.filter(
+    (user) => user.userID !== socket.id
+  );
+
   return (
     <CardSafeAreaWrap
       source={pattern_bg_2}
@@ -57,7 +115,11 @@ const Messages = ({ navigation }: ScreenDefaultProps) => {
         <Stories />
       </ImageBackground>
       <ChatlistContainer>
-        <ChatlistItem navigation={navigation} />
+        <FlatList
+          data={filteredUsers}
+          renderItem={renderChatListItem}
+          extraData={filteredUsers}
+        />
       </ChatlistContainer>
     </CardSafeAreaWrap>
   );

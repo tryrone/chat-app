@@ -12,6 +12,9 @@ import SeenIcon from "./seen.svg";
 import Dots from "./dots.svg";
 import MicSvg from "./mic.svg";
 import BackArrow from "./back_arrow.svg";
+import SelectIconSvg from "./select_Icon.svg";
+import ActivePassword from "./active_password.svg";
+import HidePassword from "./hide_password.svg";
 
 export {
   Big_Add_Btn,
@@ -28,4 +31,7 @@ export {
   Dots,
   MicSvg,
   BackArrow,
+  ActivePassword,
+  HidePassword,
+  SelectIconSvg,
 };

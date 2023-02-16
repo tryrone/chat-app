@@ -4,7 +4,7 @@ import styled from "styled-components/native";
 import { SeenIcon } from "../../../assets/svgs";
 import Colors from "../../constants/Colors";
 import Fonts from "../../constants/Fonts";
-import { ScreenDefaultProps } from "../../constants/types";
+import { UserObject } from "../../pages/messages";
 import CustomText from "../CustomText";
 
 const Wrapper = styled.TouchableOpacity`
@@ -17,9 +17,10 @@ const Wrapper = styled.TouchableOpacity`
   justify-content: space-between;
 `;
 
-const Row = styled.View`
+const Row = styled.View<{ mt?: number }>`
   flex-direction: row;
   align-items: center;
+  margin-top: ${({ mt }) => mt || 0}px;
 `;
 
 const ProfileImage = styled.Image`
@@ -29,15 +30,24 @@ const ProfileImage = styled.Image`
   margin-right: 20px;
 `;
 
+const Dot = styled.View<{ online: boolean }>`
+  height: 10px;
+  width: 10px;
+  border-radius: ${10 / 2}px;
+  background-color: ${({ online }) => (online ? Colors?.green : Colors?.error)};
+`;
+
 interface ChatItemProps {
   navigation: {
-    navigate?: (val: string) => void;
+    navigate?: (val: string, obj?: Record<any, any>) => void;
   };
+  user: UserObject;
 }
 
-const ChatlistItem = ({ navigation }: ChatItemProps) => {
+const ChatlistItem = ({ navigation, user }: ChatItemProps) => {
+  const online = false;
   return (
-    <Wrapper onPress={() => navigation?.navigate("ChatDetail")}>
+    <Wrapper onPress={() => navigation?.navigate("ChatDetail", { user })}>
       <Row>
         <ProfileImage
           source={{
@@ -51,9 +61,23 @@ const ChatlistItem = ({ navigation }: ChatItemProps) => {
             fontWeight="700"
             fontFamily={Fonts.InterMedium}
           >
-            Pranav Ray
+            {user?.username}
           </CustomText>
-          <CustomText
+
+          <Row mt={9}>
+            <Dot online={online} />
+
+            <CustomText
+              fontSize={14}
+              left={4}
+              fontWeight="500"
+              fontFamily={Fonts.InterRegular}
+              color={Colors?.inactiveIcon}
+            >
+              {online ? "Online" : "Offline"}
+            </CustomText>
+          </Row>
+          {/* <CustomText
             fontSize={14}
             top={4}
             fontWeight="500"
@@ -61,11 +85,11 @@ const ChatlistItem = ({ navigation }: ChatItemProps) => {
             color={Colors?.inactiveIcon}
           >
             okay sure!!
-          </CustomText>
+          </CustomText> */}
         </View>
       </Row>
 
-      <View>
+      {/* <View>
         <CustomText
           fontSize={12}
           fontWeight="500"
@@ -76,7 +100,7 @@ const ChatlistItem = ({ navigation }: ChatItemProps) => {
           12:25 PM
         </CustomText>
         <SeenIcon style={{ alignSelf: "flex-end" }} />
-      </View>
+      </View> */}
     </Wrapper>
   );
 };

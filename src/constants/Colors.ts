@@ -9,4 +9,10 @@ export default {
   orange: "rgba(255,137,51,0.25)",
   yellow: "rgba(255,199,0,0.25)",
   timeColor: "#8A91A8",
+  border: "#EDF2F7",
+  greyPlaceholderTextColor: "#5C6F7F",
+  grey_2: "#dfdfdf",
+  error: "#ED5E3B",
+  inputGreyBg: "#F7F7F7",
+  green: "#34A853",
 };

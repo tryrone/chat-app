@@ -49,7 +49,8 @@ const ArrowContainer = styled.TouchableOpacity`
   right: 12px;
 `;
 
-const ChatDetail = ({ navigation }: ScreenDefaultProps) => {
+const ChatDetail = ({ navigation, route }: ScreenDefaultProps) => {
+  const user = route?.params?.user;
   return (
     <KeyboardShift>
       <CardSafeAreaWrap
@@ -96,7 +97,7 @@ const ChatDetail = ({ navigation }: ScreenDefaultProps) => {
           </TextWrap>
         </ImageBackground>
         <ChatContainer>
-          <Chat />
+          <Chat user={user} />
         </ChatContainer>
       </CardSafeAreaWrap>
     </KeyboardShift>

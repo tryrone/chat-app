@@ -13,7 +13,7 @@ const PeopleImage = styled.Image`
   height: 300px;
   width: 95%;
   align-self: center;
-  margin-top: 60px;
+  margin-top: 20px;
 `;
 
 const PatternBg = styled.ImageBackground``;
@@ -63,7 +63,7 @@ const Welcome = ({ navigation }: ScreenDefaultProps): JSX.Element => {
 
         <Button
           text="Get Started"
-          style={{ marginTop: 40 }}
+          style={{ marginTop: "8%" }}
           fontWeight="700"
           height="64px"
           borderRadius="100px"
@@ -71,7 +71,7 @@ const Welcome = ({ navigation }: ScreenDefaultProps): JSX.Element => {
           textColor={Colors?.black}
           bgColor={Colors?.white}
           onPress={() => {
-            navigation?.navigate("Dashboard");
+            navigation?.navigate("CreateAccount");
           }}
         />
       </BlackContainer>
